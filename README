@@ -1,0 +1,13 @@
+ASCIIDOC COMPATIBLE WRAPPER SCRIPTS
+===================================
+
+This package provides wrapper scripts for asciidoc and a2x using
+asciidoctor and xmlto instead.  The scripts are written in bash, and
+support only the very limited features.
+
+As the main purpose of the package is to make the other existing
+package building mostly as is, and *not* for providing the full
+compatibility with all asciidoc features.  Hence many options are
+silently ignored.
+
+SPDX-License-Identifier: GPL-2.0+
