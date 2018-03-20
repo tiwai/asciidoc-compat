@@ -13,7 +13,7 @@ eval set -- "$OPTS"
 doctype=""
 backend=""
 outfile=""
-args=()
+args=("-acompat-mode")
 
 usage () {
     echo "Usage: asciidoc [options] FILE"
