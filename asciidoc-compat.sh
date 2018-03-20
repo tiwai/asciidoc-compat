@@ -10,6 +10,9 @@ version=8.6.10
 OPTS=$(getopt -o "a:b:f:d:cheso:nv" --long "attribute:,backend:,conf-file:,doctest,doctype:,dump-conf,filter:,help,no-conf,no-header-footer,out-file:,section-numbers,safe,unsafe,theme:,verbose,version" -n "asciidoc" -- "$@") || exit 1
 eval set -- "$OPTS"
 
+doctype=""
+backend=""
+outfile=""
 args=()
 
 usage () {
@@ -17,6 +20,16 @@ usage () {
     echo "  This is a wrapper script to process via asciidoctor"
     echo "  Many opetions are simply ignored"
     exit 1
+}
+
+fixup_manpage () {
+    test x"$1" = x"-" && return
+    if ! grep -q '<refmiscinfo class="source">' "$1"; then
+	sed -i -e's@</refmeta>@<refmiscinfo class="source">\&\#160\;</refmiscinfo>\n</refmeta>@' "$1"
+    fi
+    if ! grep -q '<refmiscinfo class="manual">' "$1"; then
+	sed -i -e's@</refmeta>@<refmiscinfo class="manual">\&\#160\;</refmiscinfo>\n</refmeta>@' "$1"
+    fi
 }
 
 while true; do
@@ -32,9 +45,15 @@ while true; do
 	    args+=("-S" "unsafe")
 	    shift;;
 	# two arguments
-	-a|--attribute|\
-	    -d|--doctype|\
-	    -o|--out-file)
+	-a|--attribute)
+	    args+=("$1" "$2")
+	    shift 2;;
+	-o|--out-file)
+	    outfile="$2"
+	    args+=("$1" "$2")
+	    shift 2;;
+	-d|--doctype)
+	    doctype="$2"
 	    args+=("$1" "$2")
 	    shift 2;;
 	-b|--backend)
@@ -81,4 +100,25 @@ while true; do
     esac
 done
 
-exec asciidoctor "${args[@]}" "$@"
+asciidoctor "${args[@]}" "$@" || exit $?
+
+# fix up manpage
+case "$backend" in
+    docbook*)
+    ;;
+    *)
+	exit 0;;
+esac
+
+if [ "$doctype" = "manpage" ]; then
+    if [ -n "$outfile" ]; then
+	fixup_manpage "$outfile"
+    else
+	for i in "$@"; do
+	    f="${i%.*}.xml"
+	    test -f "$f" && fixup_manpage "$f"
+	done
+    fi
+fi
+
+exit 0
