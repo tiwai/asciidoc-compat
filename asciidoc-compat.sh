@@ -68,7 +68,7 @@ while true; do
 		docbook*)
 		    backend="docbook45";;
 		*)
-		    echo "asciidoc-compat: Unsupported backend: $backend"
+		    echo "error: asciidoc-compat: Unsupported backend: $backend"
 		    exit 1;;
 	    esac
 	    args+=("$1" "$backend")
@@ -77,11 +77,13 @@ while true; do
 	--doctest|\
 	    -c|--dump-coef|\
 	    -e|--no-conf)
+	    echo "warning: asciidoc-compat: ignoring $1"
 	    shift;;
 	# two arguments to drop
 	-f|--conf-file|\
 	    --theme|\
 	    --filter)
+	    echo "warning: asciidoc-compat: ignoring $1 $2"
 	    shift 2;;
 	-h|--help)
 	    usage "$1";;
